@@ -58,7 +58,7 @@ void* allocate_buffer(size_t size) {
 
 **Before:** A sea of error checking bolted on as an after thought once the protocol handling code is working.
 
-```
+```c
 int send_packet(int sock, Packet* pkt) {
     if (sock < 0) return -1;
     if (!pkt) return -1;
