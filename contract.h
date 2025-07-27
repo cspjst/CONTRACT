@@ -14,7 +14,6 @@
 
 #include "posix_errno.h"
 
-
 static inline void _contract_fail(
     const char *cond,
     const char *msg,
@@ -26,19 +25,17 @@ static inline void _contract_fail(
     char datetime[20]; // YYYY-MM-DD HH:MM:SS\0
     const char *filename = file;
 
-    /* Extract just the filename portion */
+    // Extract just the filename portion
     const char *last_slash = strrchr(file, '\\');
     if (!last_slash) last_slash = strrchr(file, '/');
     if (last_slash) filename = last_slash + 1;
 
-    /* Format date+time */
     tm_info = localtime(&now);
     strftime(datetime, sizeof(datetime), "%Y-%m-%d %H:%M:%S", tm_info);
 
-    /* Output with clean filename */
     fprintf(stderr, "[%s] %s:%d|%s|%d(%s)|%s\n",
             datetime,
-            filename,  // Just the filename, no path
+            filename,
             line,
             cond,
             errno,
@@ -55,55 +52,33 @@ static inline void _contract_fail(
         } \
     } while (0)
 
-
 // Default Contract
-
 #define require(cond, msg) _CONTRACT_ENFORCE(cond, msg, POSIX_EINVAL)       // Caller's fault
 #define ensure(cond, msg) _CONTRACT_ENFORCE(cond, msg, POSIX_EINVAL)        // Function's fault
 #define invariant(cond, msg)  _CONTRACT_ENFORCE(cond, msg, POSIX_EINVAL)    // Object's fault
 
-
-
+// Contract specialisations ensure_*
 // Memory/Validity Guards
-
-#define ensure_address(ptr, msg) \
-    ensure((ptr) != NULL, msg)  // POSIX_EFAULT implied by failure
-
-#define ensure_valid_encoding(str, msg) \
-    ensure(mblen(str, MB_CUR_MAX) != -1, msg)  // POSIX_EILSEQ
-
-
+#define ensure_address(ptr, msg) _CONTRACT_ENFORCE((ptr) != NULL, msg, POSIX_EFAULT
+#define ensure_valid_encoding(valid_cond, msg) _CONTRACT_ENFORCE(valid_cond, msg, POSIX_EILSEQ
 
 // Mathematical Guarantees
-
-#define ensure_in_range(val, min, max, msg) \
-    ensure((val) >= (min) && (val) <= (max), msg)  // POSIX_ERANGE/EDOM
-
-#define ensure_no_overflow(val, msg) \
-    ensure((val) != INT_MAX && (val) != LONG_MAX, msg)  // POSIX_EOVERFLOW
-
-
+#define ensure_in_range(val, min, max, msg) _CONTRACT_ENFORCE((val) >= (min) && (val) <= (max), msg, POSIX_ERANGE)
+#define ensure_no_overflow(val, msg) _CONTRACT_ENFORCE((val) != INT_MAX && (val) != LONG_MAX, msg, POSIX_EOVERFLOW)
 
 // State Consistency
+#define ensure_resource_available(cond, msg) _CONTRACT_ENFORCE(cond, msg, POSIX_EBUSY)
+#define ensure_mutex_consistent(cond, msg) _CONTRACT_ENFORCE(cond, msg, POSIX_EDEADLK)
 
-#define ensure_resource_available(cond, msg) \
-    ensure(cond, msg)  // POSIX_EAGAIN/EBUSY implied
-
-#define ensure_mutex_consistent(cond, msg) \
-    ensure(cond, msg)  // POSIX_EDEADLK implied
-
-
+// Contract specialisations require_*
 // Process/System Contracts
-
 #define require_arg_list(cond, msg) _CONTRACT_ENFORCE(cond, msg, POSIX_E2BIG)  /// @example require_arg_list(argv_size < 4096, "Argument list exceeds system limit");
 #define require_id_valid(cond, msg) _CONTRACT_ENFORCE(cond, msg, POSIX_EIDRM)  /// @example require_id_valid(shm_id != -1, "Invalid shared memory ID");
 #define require_process(cond, msg) _CONTRACT_ENFORCE(cond, msg, POSIX_ESRCH)  /// @example require_process(kill(pid, 0) == 0, "Target process does not exist");
 #define require_no_deadlock(cond, msg) _CONTRACT_ENFORCE(cond, msg, POSIX_EDEADLK)  /// @example require_no_deadlock(!mutex_locked, "Potential deadlock detected");
 #define require_not_canceled(cond, msg) _CONTRACT_ENFORCE(cond, msg, POSIX_ECANCELED)  /// @example require_not_canceled(!thread_canceled, "Operation canceled by thread termination");
 
-
 // Filesystem Contracts
-
 #define require_fd(cond, msg) _CONTRACT_ENFORCE(cond, msg, POSIX_EBADF)  /// @example require_fd(fd >= 0, "Invalid file descriptor");
 #define require_exists(cond, msg) _CONTRACT_ENFORCE(cond, msg, POSIX_ENOENT)  /// @example require_exists(access(path, F_OK) == 0, "File does not exist");
 #define require_not_dir(cond, msg) _CONTRACT_ENFORCE(cond, msg, POSIX_EISDIR)  /// @example require_not_dir(!S_ISDIR(st.st_mode), "Path must not be a directory");
@@ -127,31 +102,24 @@ static inline void _contract_fail(
 #define require_recoverable(cond, msg) _CONTRACT_ENFORCE(cond, msg, POSIX_ENOTRECOVERABLE)  /// @example require_recoverable(state != CORRUPTED, "Unrecoverable state detected");
 #define require_owner_alive(cond, msg) _CONTRACT_ENFORCE(cond, msg, POSIX_EOWNERDEAD)  /// @example require_owner_alive(check_owner(lock), "Lock owner terminated");
 
-
 // Memory/Address Contracts
-
 #define require_address(cond, msg) _CONTRACT_ENFORCE(cond, msg, POSIX_EFAULT)  /// @example require_address(ptr != NULL, "Null pointer dereference");
 #define require_mem(cond, msg) _CONTRACT_ENFORCE(cond, msg, POSIX_ENOMEM)  /// @example require_mem(ptr = malloc(size), "Memory allocation failed");
 #define require_aligned(cond, msg) _CONTRACT_ENFORCE(cond, msg, POSIX_EINVAL)  /// @example require_aligned((uintptr_t)ptr % 8 == 0, "Pointer not 8-byte aligned");
 
-
 // Math/Domain Contracts
-
 #define require_domain(cond, msg) _CONTRACT_ENFORCE(cond, msg, POSIX_EDOM)  /// @example require_domain(x >= 0, "Square root of negative number");
 #define require_range(cond, msg) _CONTRACT_ENFORCE(cond, msg, POSIX_ERANGE)  /// @example require_range(result <= INT_MAX, "Integer overflow detected");
 
 
 // Network Contracts
-
 #define require_not_already_connecting(cond, msg) _CONTRACT_ENFORCE(cond, msg, POSIX_EALREADY)  /// @example require_not_already_connecting(!connecting, "Already connecting to host");
 #define require_host_reachable(cond, msg) _CONTRACT_ENFORCE(cond, msg, POSIX_EHOSTUNREACH)  /// @example require_host_reachable(ping(host) == 0, "Host unreachable");
 #define require_network_up(cond, msg) _CONTRACT_ENFORCE(cond, msg, POSIX_ENETDOWN)  /// @example require_network_up(is_interface_up("eth0"), "Network interface down");
 #define require_no_timeout(cond, msg) _CONTRACT_ENFORCE(cond, msg, POSIX_ETIMEDOUT)  /// @example require_no_timeout(select(fd+1, &readfds, NULL, NULL, &tv) > 0, "Connection timeout");
 #define require_proto_available(cond, msg) _CONTRACT_ENFORCE(cond, msg, POSIX_EPROTONOSUPPORT)  /// @example require_proto_available(socket(AF_INET, SOCK_RAW, proto) != -1, "Protocol not supported");
 
-
-// STREAMS Contracts (Obscure POSIX)
-
+// Streams Contracts (Obscure POSIX)
 #define require_stream_alive(cond, msg) _CONTRACT_ENFORCE(cond, msg, POSIX_ENODEV)  /// @example require_stream_alive(isatty(fileno(stdin)), "Standard input not a terminal");
 
 #endif
