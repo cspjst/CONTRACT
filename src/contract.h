@@ -1,7 +1,9 @@
 /**
  * @file contract.h
- * @brief POSIX_Exhaustive Design-by-Contract with ALL PPOSIX.1-2001 errno values
- *
+ * @brief Design-by-Contract macros leverages POSIX.1-2001 errno values
+ * @version 0.1.3
+ * @license MIT
+ * @author Jeremy Thornton
  */
 #ifndef CONTRACT_H
 #define CONTRACT_H
@@ -14,6 +16,21 @@
 
 #include "posix_errno.h"
 
+/**
+ * @brief Handles contract violation by printing detailed error information and terminating the program
+ *
+ * This function is called when a contract condition fails. It prints a formatted error message
+ * including timestamp, file location, failed condition, errno value, and descriptive message,
+ * then terminates the program with abort().
+ *
+ * @param cond The failed condition expression as a string
+ * @param msg Custom error message describing the contract violation
+ * @param file Source file name where the contract violation occurred
+ * @param line Line number where the contract violation occurred
+ *
+ * @note This function sets errno to the appropriate POSIX error code before terminating
+ * @note The error output format is: [YYYY-MM-DD HH:MM:SS] filename:line|condition|errno(errno_name)|message
+ */
 static inline void _contract_fail(
     const char *cond,
     const char *msg,
@@ -44,6 +61,17 @@ static inline void _contract_fail(
     abort();
 }
 
+/**
+ * @brief Core contract enforcement macro that evaluates a condition and handles violations
+ *
+ * This macro tests a boolean condition and if it evaluates to false, it sets the specified
+ * errno value and calls _contract_fail() to report the violation and terminate the program.
+ * The condition expression is stringified for inclusion in the error report.
+ *
+ * @param cond Boolean condition to evaluate - contract passes if true
+ * @param msg Custom error message to display if contract is violated
+ * @param err POSIX error code to set in errno when contract is violated
+ */
 #define _CONTRACT_ENFORCE(cond, msg, err) \
     do { \
         if (!(cond)) { \
@@ -59,16 +87,16 @@ static inline void _contract_fail(
 
 // Contract specialisations ensure_*
 // Memory/Validity Guards
-#define ensure_address(ptr, msg) _CONTRACT_ENFORCE((ptr) != NULL, msg, POSIX_EFAULT
-#define ensure_valid_encoding(valid_cond, msg) _CONTRACT_ENFORCE(valid_cond, msg, POSIX_EILSEQ
+#define ensure_address(ptr, msg) _CONTRACT_ENFORCE((ptr) != NULL, msg, POSIX_EFAULT)  /// @example ensure_address(result_ptr, "Function failed to allocate memory");
+#define ensure_valid_encoding(valid_cond, msg) _CONTRACT_ENFORCE(valid_cond, msg, POSIX_EILSEQ)  /// @example ensure_valid_encoding(is_valid_utf8(result_str), "Function returned invalid UTF-8");
 
 // Mathematical Guarantees
-#define ensure_in_range(val, min, max, msg) _CONTRACT_ENFORCE((val) >= (min) && (val) <= (max), msg, POSIX_ERANGE)
-#define ensure_no_overflow(val, msg) _CONTRACT_ENFORCE((val) != INT_MAX && (val) != LONG_MAX, msg, POSIX_EOVERFLOW)
+#define ensure_in_range(val, min, max, msg) _CONTRACT_ENFORCE((val) >= (min) && (val) <= (max), msg, POSIX_ERANGE)  /// @example ensure_in_range(returned_value, 0, 100, "Function result out of expected bounds");
+#define ensure_no_overflow(val, msg) _CONTRACT_ENFORCE((val) != INT_MAX && (val) != LONG_MAX, msg, POSIX_EOVERFLOW)  /// @example ensure_no_overflow(result, "Function computation overflowed");
 
 // State Consistency
-#define ensure_resource_available(cond, msg) _CONTRACT_ENFORCE(cond, msg, POSIX_EBUSY)
-#define ensure_mutex_consistent(cond, msg) _CONTRACT_ENFORCE(cond, msg, POSIX_EDEADLK)
+#define ensure_resource_available(cond, msg) _CONTRACT_ENFORCE(cond, msg, POSIX_EBUSY)  /// @example ensure_resource_available(sem_trywait(&sem) == 0, "Function failed to acquire required resource");
+#define ensure_mutex_consistent(cond, msg) _CONTRACT_ENFORCE(cond, msg, POSIX_EDEADLK)  /// @example ensure_mutex_consistent(pthread_mutex_consistent(&mutex) == 0, "Mutex state inconsistent after function call");
 
 // Contract specialisations require_*
 // Process/System Contracts
