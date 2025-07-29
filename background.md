@@ -131,7 +131,7 @@ The following contiguous ranges are undefined in the standard errno namespace:
 - **102–109** (8 values) — Sparse connection state errors (e.g., `ECONNABORTED`, `ESHUTDOWN`)
 - **117–124** (8 values) — Async I/O and recovery-related codes (mostly unused)
 
-These gaps reflect historical divergence between BSD, System V, and POSIX, as well as reserved space that was never standardised. Ergo, the non-contiguity is not a defect, but rather a consequence of incremental, consensus-driven development.
+These gaps reflect historical divergence between BSD, System V, and POSIX, as well as reserved space that was never standardised. Therefore, the non-contiguity is not a defect, but rather a consequence of incremental, consensus-driven development.
 
 ## Conclusion
 
