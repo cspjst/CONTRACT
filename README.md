@@ -14,7 +14,7 @@ However, time has moved on and, through bitter experience, the concepts of secur
 
 I think that Design by Contract, or rather a modern pragmatic approach to it, can help constrain some of the downsides of programming in C, and, actually empower those of us who still choose to program in C to deliver _safer_ C.
 
-## **Motivation**
+## **Motivations**
 
 C's reputation for speed comes with a well-known caveat: safety is largely left to the programmer. While `assert()` provides basic sanity checking, it disappears entirely in release builds, leaving production code vulnerable to subtle (and not-so-subtle) errors. This gap led me to explore how Design by Contract principles could be applied in C programming but in a way that feels native to the language's philosophy.
 
