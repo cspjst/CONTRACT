@@ -19,7 +19,7 @@ The defined `errno` values can be grouped into chronological layers, each corres
 
 The earliest `errno` values originated in Version 7 Unix (1979) and were later adopted in System III and System V. These cover fundamental operations involving files, processes, and memory.
 
-Key values in this phase:
+Key values in this phase:-
 - `EPERM` (1): Operation not permitted
 - `ENOENT` (2): No such file or directory
 - `ESRCH` (3): No such process
@@ -141,17 +141,17 @@ Understanding this evolution aids in designing robust error-handling mechanisms 
 
 ## References
 
-- *The Unix Programmer’s Manual, Seventh Edition* (1979)  
+- *The Unix Programmer’s Manual, Seventh Edition* (1979)
   https://man.cat-v.org/unix-7th/
 
 - Bach, M. J. (1986). *The Design of the UNIX Operating System*. Prentice Hall.
 
-- IEEE Std 1003.1-2001. *Portable Operating System Interface (POSIX)*.  
+- IEEE Std 1003.1-2001. *Portable Operating System Interface (POSIX)*.
   https://pubs.opengroup.org/onlinepubs/009695399/
 
 - Stevens, W. R. (1990). *Unix Network Programming*. Prentice Hall.
 
 - McKusick, M. K., et al. (1996). *The Design and Implementation of the 4.4BSD Operating System*. Addison-Wesley.
 
-- RFC 1122: *Requirements for Internet Hosts* (1989)  
+- RFC 1122: *Requirements for Internet Hosts* (1989)
   https://tools.ietf.org/html/rfc1122
