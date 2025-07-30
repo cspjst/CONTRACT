@@ -1,6 +1,6 @@
 ![](https://github.com/cspjst/RESOURCE/blob/main/LOGOS/DbC_Shield_128x114.png)
 # **Applying Design by Contract to C**
-
+![Pair Programming](https://img.shields.io/badge/PAIR_PROGRAMMING-CO--DEVELOPED_WITH_QWEN3-8a2be2?style=flat&logo=alibaba&logoColor=white)
 
 *Exploring a practical approach to bringing DbC principles to a language that has a bad reputation for safety.*
 
