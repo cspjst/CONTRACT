@@ -4,7 +4,7 @@
 
 *Exploring a practical approach to bringing DbC principles to a language that has a bad reputation for safety.*
 
-## SynopsisX
+## Synopsis
 
 > Design by contract was first coined by Bertrand Meyer in connection with the Eiffel programming language, and it was described in various articles starting in 1986, as well as in his book "Object-Oriented Software Construction" published in 1988 and 1997. The concept emphasizes defining formal interface specifications for software components, akin to business contracts. [Wikipedia](https://en.wikipedia.org/wiki/Design_by_contract)
 
