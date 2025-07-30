@@ -4,7 +4,7 @@
 
 *Exploring a practical approach to bringing DbC principles to a language that has a bad reputation for safety.*
 
-## SynopsisX
+## Synopsis
 
 > Design by contract was first coined by Bertrand Meyer in connection with the Eiffel programming language, and it was described in various articles starting in 1986, as well as in his book "Object-Oriented Software Construction" published in 1988 and 1997. The concept emphasizes defining formal interface specifications for software components, akin to business contracts. [Wikipedia](https://en.wikipedia.org/wiki/Design_by_contract)
 
@@ -14,7 +14,7 @@ However, time has moved on and, through bitter experience, the concepts of secur
 
 I think that Design by Contract, or rather a modern pragmatic approach to it, can help constrain some of the downsides of programming in C, and, actually empower those of us who still choose to program in C to deliver _safer_ C.
 
-## **Motivation**
+## **Motivations**
 
 C's reputation for speed comes with a well-known caveat: safety is largely left to the programmer. While `assert()` provides basic sanity checking, it disappears entirely in release builds, leaving production code vulnerable to subtle (and not-so-subtle) errors. This gap led me to explore how Design by Contract principles could be applied in C programming but in a way that feels native to the language's philosophy.
 
