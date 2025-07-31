@@ -1,4 +1,14 @@
-# Ignore .DS_Store everywhere
+# Make & compilation
+Makefile
+*.o
+*.a
+*.so
+*.dylib
+
+# Executables
+*.out
+*.bin
+*.exe# Ignore .DS_Store everywhere
 .DS_Store
 **/.DS_Store
 
