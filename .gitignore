@@ -1,3 +1,12 @@
+# Ignore .DS_Store everywhere
+.DS_Store
+**/.DS_Store
+
+# Ignore all shell scripts
+*.sh
+**/*.sh
+
+# ignore CMake detritus
 CMakeLists.txt.user
 CMakeCache.txt
 CMakeFiles
@@ -12,7 +21,9 @@ _deps
 CMakeUserPresets.json
 
 .DS_Store
-.sh
+**/.DS_Store
+*.sh
+**/*.sh
 
 # CLion
 #  JetBrains specific template is maintained in a separate JetBrains.gitignore that can
