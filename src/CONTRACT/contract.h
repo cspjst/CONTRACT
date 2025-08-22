@@ -11,8 +11,6 @@
 #include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <time.h>
-#include <string.h>
 #include <limits.h>
 
 #include "contract_errors.h"
