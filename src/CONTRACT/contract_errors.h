@@ -103,6 +103,6 @@ typedef enum {
 
 } posix_error_t;
 
-static const char* contract_strerror(int err);
+const char* contract_strerror(int err);
 
 #endif
