@@ -1,4 +1,6 @@
 #include "contract.h" 
+#include <time.h>
+#include <string.h>
 
 void _contract_fail(
     const char *cond,
