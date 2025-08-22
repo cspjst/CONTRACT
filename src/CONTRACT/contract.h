@@ -8,12 +8,8 @@
 #ifndef CONTRACT_H
 #define CONTRACT_H
 
-#include <errno.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <limits.h>
-
 #include "contract_errors.h"
+#include <errno.h>
 
 /**
  * @brief Handles contract violation by printing detailed error information and terminating the program
