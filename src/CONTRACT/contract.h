@@ -32,35 +32,7 @@
  * @note This function sets errno to the appropriate POSIX error code before terminating
  * @note The error output format is: [YYYY-MM-DD HH:MM:SS] filename:line|condition|errno(errno_name)|message
  */
-static inline void _contract_fail(
-    const char *cond,
-    const char *msg,
-    const char *file,
-    int line
-) {
-    time_t now = time(NULL);
-    struct tm *tm_info;
-    char datetime[20]; // YYYY-MM-DD HH:MM:SS\0
-    const char *filename = file;
-
-    // Extract just the filename portion
-    const char *last_slash = strrchr(file, '\\');
-    if (!last_slash) last_slash = strrchr(file, '/');
-    if (last_slash) filename = last_slash + 1;
-
-    tm_info = localtime(&now);
-    strftime(datetime, sizeof(datetime), "%Y-%m-%d %H:%M:%S", tm_info);
-
-    fprintf(stderr, "[%s] %s:%d|%s|%d(%s)|%s\n",
-            datetime,
-            filename,
-            line,
-            cond,
-            errno,
-            contract_strerror(errno),
-            msg);
-    //abort();
-}
+void _contract_fail(const char *cond, const char *msg, const char *file, int line);
 
 /**
  * @brief Core contract enforcement macro that evaluates a condition and handles violations
