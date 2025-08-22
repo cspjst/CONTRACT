@@ -1,6 +1,6 @@
 #include "contract.h" 
 
-static inline void _contract_fail(
+void _contract_fail(
     const char *cond,
     const char *msg,
     const char *file,
