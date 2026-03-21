@@ -1,5 +1,8 @@
 ![](https://github.com/cspjst/RESOURCE/blob/main/LOGOS/DbC_Shield_128x114.png)
 # **Applying Design by Contract to C**
+```
+© Jeremy Simon Thornton 2025 
+```
 
 *Exploring a practical approach to bringing DbC principles to a language that has a bad reputation for safety.*
 
