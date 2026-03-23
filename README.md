@@ -3,54 +3,16 @@
 ```
 © Jeremy Simon Thornton 2025 
 ```
+Exploring a practical approach to bringing DbC principles to a language that has a bad reputation for safety.
 
-*Exploring a practical approach to bringing DbC principles to a language that has a bad reputation for safety.*
+> [!IMPORTANT] 
+> This is an experimental approach, and it's important to understand its boundaries.
 
-## Synopsis
-
-> Design by contract was first coined by Bertrand Meyer in connection with the Eiffel programming language, and it was described in various articles starting in 1986, as well as in his book "Object-Oriented Software Construction" published in 1988 and 1997. The concept emphasizes defining formal interface specifications for software components, akin to business contracts. [Wikipedia](https://en.wikipedia.org/wiki/Design_by_contract)
-
-My background reading suggests that Design by Contract (DbC) has never been mainstream and, even within academic circles, fell from favour. I think that, for its time at least, it was seen as an over-engineered solution to a set of problems that seem to have been regarded as less important(?).
-
-However, time has moved on and, through bitter experience, the concepts of security, correctness, and accountability have taken firm root in the programming zeitgeist - driving development responses such as Test Driven Development (TDD) and languages like RUST.
-
-I think that Design by Contract, or rather a modern pragmatic approach to it, can help constrain some of the downsides of programming in C, and, actually empower those of us who still choose to program in C to deliver _safer_ C.
-
-## **Motivations**
-
-C's reputation for speed comes with a well-known caveat: safety is largely left to the programmer. While `assert()` provides basic sanity checking, it disappears entirely in release builds, leaving production code vulnerable to subtle (and not-so-subtle) errors. This gap led me to explore how Design by Contract principles could be applied in C programming but in a way that feels native to the language's philosophy.
-
-I do not like writing boilerplate code and testing for errors with a myriad of ``` if then else``` constructs tends to drown out the interesting parts. I also tend to make a poor job of implementing it and, whilst I have tended to favour asserts with a message ```assert(ptr && "NULL pointer!"``` they are not only ephemeral but lack the semantic power of well written DbC.
-
-My DbC for C approach, embodied in the ```contract.h``` file and its companion ```posix_errno.h``` definitions file (more on that one later), focuses on making assumptions explicit and catching violations early. That has, experientially, turned frustrating debugging into clear, and logged, diagnosis.
-
-Interestingly, a less tangible benefit that grows on you with using DbC is that it helps you think and then program more defensively. I found myself freely incorporating DbC safety into the code - rather than begrudgingly bolt on error checking as an after thought. An unexpected and pleasant benefit of DbC.
-
-## Prior Art
+[Design by Contract Wikipedia](https://en.wikipedia.org/wiki/Design_by_contract)
 
 Apart from the excellent [DbC for embedded C by Quantum Leap](https://github.com/QuantumLeaps/DBC-for-embedded-C) I could not find anything else specific to C.
 
-## **Core Concepts: require, ensure, invariant**
-
-The foundation rests on three types of assertions:
-
-1. **Preconditions (`require`)** : Conditions that *must* be true before a function executes. These are the caller's responsibility. If a file descriptor is needed, `require_fd(fd >= 0, "...")` makes it explicit and checks it.
-
-
-
-2. **Postconditions (`ensure`)** : Conditions that *must* be true after a function completes successfully. This is the function's promise. `ensure(result != NULL, "...")` guarantees a valid return value.
-
-
-
-3. **Invariants (`invariant`)** : Conditions that must hold true throughout the lifetime of a data structure or during critical sections (like holding a lock). `invariant(list->count >= 0, "...")` enforces structural integrity.
-
-Looking at this you might think, as I did, that ```require```, ```ensure```, and ```invariant``` are just 3 macros with an error message that ignore NDEBUG. Further, it could, rightly, be argued that there is no functional difference between the 3 DbC keywords, but this would be to miss the semantic point of DbC - an explicit and compact narrative of intent, _guaranteed_ intent.
-
-Perhaps then, and this is where the pragmatic part comes in, there is more to be gained by adding both more semantic meaning and more debug feedback to three DbC keywords?
-
-To this end I have extended ```require``` to a further 45 error condition specific keywords, such as ```require_address``` and ```require_fd```. The ```require_*``` family of preconditions not only add to the self documenting nature of code, they make the guarantees specific and the error logs more detailed. Further, and because the list of the symbolic error names are derived from the *POSIX.1-2001* ```errno.h``` header file, they have wide practical application and a degree of standards based gravitas.
-
-## Extensions to require
+My, experimental, approach extends the the ```require``` operator with semantically useful appended extension names.
 
 The ```require_*``` extensions are grouped into 6 subsets, those being (ordered by personal experience of their utility):
 Memory/Address Contracts, Filesystem Contracts, Network Contracts, Process/System Contracts, Math/Domain Contracts, and Stream Contracts.
@@ -215,13 +177,13 @@ Money convert_currency(Money amount, double rate) {
 }
 ```
 
-I thought long and hard about ```invariant``` and concluded that, based upon the DbC concept that an invariant is an absolute truth about the scope that the code is working in. Such that ```invariant``` should be reserved for situations that POSIX error codes can not meaningfully embrace - such as undefined behaviour.
+I thought long and hard about ```invariant``` and concluded that, based upon the DbC concept that an invariant is an _absolute truth_ about the scope that the code is working in. Such that ```invariant``` should be reserved for situations that POSIX error codes can not meaningfully embrace - such as undefined behaviour.
 
 Conceptually, ```invariant``` has been the trickiest of the 3 ideas to grasp. It seems that invariants are more subtle than pre/postconditions in that they capture something fundamental about object/state consistency - a code block's extant operating universe, if you will. That is, something that error codes alone are unable to express.
 
 I think invariants in C should be seen as trying to protect the lifetime state of a block of code and guard against that great enemy of C code, undefined behaviour (UB). Ultimately then, I think invariants are about guaranteeing the predicates upon which the programmer's reasoning are founded.
 
-To express this by example consider a runtime memory allocated but fixed sized structure such as a bounded array. Our reasoning about it is based upon the fact that it is bounded, and the invariants flow from that:
+To express this by example consider a runtime memory allocated but fixed sized structure such as a bounded array. The reasoning about it is based upon the fact that it is bounded, and the invariants flow from that:
 
 ```c
 typedef struct {
@@ -309,17 +271,3 @@ void bda_append(bounded_dynamic_array_t*  arr, int value) {
 ```
 
 Yes, it may seem like a lot of extra code but it is only 10 lines and without DbC there would likely be a spaghetti of confusing ```if``` statements as well as being much less self documenting and, I would have much less confidence in it.
-
-## **Implementation Notes**
-
-The implementation focuses on practicality and portability.
-
-Portability is achieved by bringing along the *POSIX.1-2001* error codes in the ```posix_errno.h``` header file. Practicality arrives in the form of the error reporting/logging concise, structured log messages (timestamp, file, line, condition, error code, message) before calling `abort()`. The error reporting code is deliberately minimal and log file orientated but, of course, you are free to modify it to your own needs. Of note, the crash reporter itself avoids heap allocation to be usable even in constrained environments.
-
-## Limitations and Considerations
-
-This is an experimental approach, and it's important to understand its boundaries.
-
-Neither Design by Contracts nor this implementation of it in C is a panacea for all errors. Contracts catch programming errors and violations are singular and final, triggering ```abort```. DbC is not designed for, nor do I attempt to enable, errors that are recoverable or should be handled gracefully.
-
-There is a performance hit it is minimal, being implemented for each keyword as a single ```if true``` fast path for the error free outcome. However, there will always be a price to pay for errors whether or not you choose to handle them - you appetite for risk and the size of that of price will direct your choices.
