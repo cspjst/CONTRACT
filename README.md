@@ -6,7 +6,7 @@
 Exploring a practical approach to bringing DbC principles to a C - language that has a bad reputation for safety.
 
 > [!IMPORTANT] 
-> This is an experimental approach, and it's important to understand its boundaries.
+> This is an experimental approach, it is not validated in production.
 
 [Design by Contract Wikipedia](https://en.wikipedia.org/wiki/Design_by_contract)
 
