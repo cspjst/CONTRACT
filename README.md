@@ -3,7 +3,7 @@
 ```
 © Jeremy Simon Thornton 2025 
 ```
-Exploring a practical approach to bringing DbC principles to a language that has a bad reputation for safety.
+Exploring a practical approach to bringing DbC principles to a C - language that has a bad reputation for safety.
 
 > [!IMPORTANT] 
 > This is an experimental approach, and it's important to understand its boundaries.
@@ -13,7 +13,7 @@ Exploring a practical approach to bringing DbC principles to a language that has
 Apart from the excellent [DbC for embedded C by Quantum Leap](https://github.com/QuantumLeaps/DBC-for-embedded-C) I could not find anything else specific to C.
 
 My, experimental, approach extends the the ```require``` operator with semantically useful appended extension names.
-
+### Extending ```require``` with intent
 The ```require_*``` extensions are grouped into 6 subsets, those being (ordered by personal experience of their utility):
 Memory/Address Contracts, Filesystem Contracts, Network Contracts, Process/System Contracts, Math/Domain Contracts, and Stream Contracts.
 
@@ -121,15 +121,16 @@ To me this makes sense because ```require``` guards against external faults, suc
 
 By example post-condition logical correctness:
 
+### General purpose ```ensure```
 ```c
-// 1. Function return validation
 double calculate_ratio(double a, double b) {
     double result = a / b;
     ensure(!isnan(result), "Invalid ratio computed");  // Catch math errors
     return result;
 }
-
-// 2. State machine integrity
+```
+### State machine integrity
+```c
 void handle_state_transition(StateMachine* sm) {
     State new_state = /* complex logic */;
     ensure(is_valid_state(new_state), "Invalid state transition");
@@ -144,22 +145,25 @@ Memory/Validity Guards, Mathematical Guarantees, and State Consistency.
 
 Again, by example POSIX error overlaps for post-condition logical correctness:
 
+### 1. Function return validation
 ```c
 // 1. Pointer chains (avoid segfaults)
 void process_config(Config* cfg) {
     ensure_address(cfg->network, "Missing network config");  // Implies EFAULT
     ensure_valid_encoding(cfg->hostname, "Invalid hostname encoding");  // Implies EILSEQ
 }
+```
 
-// 2. API boundary checks
+### 2. API boundary checks
+```c
 void* aligned_alloc(size_t alignment, size_t size) {
     void* ptr = _aligned_malloc(size, alignment);
     ensure_address(ptr, "Allocation failed");  // More explicit than vanilla ensure
 }
 ```
 
+### 3. Physics simulation
 ```c
-// 1. Physics simulation
 void update_particle(Particle* p) {
     p->velocity += p->acceleration * DT;
     ensure_in_range(p->velocity, -C_LIGHT, C_LIGHT, "Relativity violation");  // Implies ERANGE
@@ -167,8 +171,10 @@ void update_particle(Particle* p) {
     p->energy = calculate_energy(p);
     ensure_no_overflow(p->energy, "Energy overflow");  // Implies EOVERFLOW
 }
+```
 
-// 2. Financial calculations
+### 4. Financial calculations
+```c
 Money convert_currency(Money amount, double rate) {
     Money result = amount * rate;
     ensure_in_range(result, -MAX_MONEY, MAX_MONEY, "Monetary overflow");
